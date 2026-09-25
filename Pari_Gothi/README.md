@@ -5,6 +5,10 @@
 > **Tech Stack:** Node.js, Express.js, Socket.io, Vanilla HTML5 / CSS3 / JavaScript (No framework)
 
 ---
+## 🔗  Live Link:
+https://pari-gothi-assignment-14-realtime-quiz.onrender.com
+
+---
 
 ## 📌 1. Project Overview
 
