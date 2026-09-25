@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Player Gamepad | Quiz Battle Arena</title>
+  <meta name="description" content="Mobile-friendly real-time answer gamepad for Quiz Battle Arena.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <a href="index.html" class="brand-logo" id="player-header-logo">
+      <div class="brand-icon">🎮</div>
+      <span>GAMEPAD</span>
+    </a>
+    <div class="header-status">
+      <div id="player-status-badge" class="brand-badge">LOBBY</div>
+      <div class="status-dot"></div>
+    </div>
+  </header>
+
+  <main class="player-container">
+    <!-- VIEW 1: Join Game Form -->
+    <section id="view-player-join" class="glass-panel" style="text-align: center;">
+      <div class="role-icon-box" style="color: #38bdf8; background: rgba(56, 189, 248, 0.15);">
+        🚀
+      </div>
+      <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;">Join Battle Arena</h1>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">
+        Enter the host's 4-digit PIN and choose your battle identity!
+      </p>
+
+      <form id="form-player-join" onsubmit="handlePlayerJoin(event)">
+        <div class="form-group">
+          <label class="form-label" for="player-pin-input">4-Digit Game PIN</label>
+          <input 
+            type="text" 
+            id="player-pin-input" 
+            class="input-control input-pin" 
+            placeholder="0000" 
+            maxlength="4" 
+            pattern="[0-9]{4}" 
+            required 
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="player-name-input">Nickname</label>
+          <input 
+            type="text" 
+            id="player-name-input" 
+            class="input-control" 
+            placeholder="e.g. ShadowRacer" 
+            maxlength="16" 
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-submit-join" style="margin-top: 1rem;">
+          <span>⚡</span> Enter Lobby
+        </button>
+      </form>
+    </section>
+
+    <!-- VIEW 2: Waiting in Lobby -->
+    <section id="view-player-lobby" class="glass-panel" style="display: none; text-align: center;">
+      <div class="role-icon-box" style="color: #22c55e; background: rgba(34, 197, 94, 0.15); animation: pulse 2s infinite;">
+        ⏳
+      </div>
+      <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;">You're in the Game!</h2>
+      <p style="color: #94a3b8; font-size: 1rem; margin-bottom: 1.5rem;">
+        PIN: <strong id="player-lobby-pin" style="color: #a5b4fc; font-family: var(--font-mono); font-size: 1.2rem;">----</strong>
+      </p>
+
+      <div style="background: rgba(10, 14, 26, 0.6); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); margin-bottom: 1.5rem;">
+        <div style="font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Playing as</div>
+        <div id="player-lobby-name" style="font-size: 1.4rem; font-weight: 800; color: #fff;">Player</div>
+      </div>
+
+      <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6;">
+        👀 Look at the host screen! The quiz will begin as soon as the host clicks <strong>Start Game</strong>.
+      </div>
+    </section>
+
+    <!-- VIEW 3: Active Mobile Gamepad / 4-Color Answer Grid -->
+    <section id="view-player-gamepad" style="display: none; flex-direction: column; width: 100%;">
+      <!-- Top info bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span style="font-weight: 700; color: #94a3b8;" id="player-round-indicator">Question 1 of 6</span>
+        <span style="font-family: var(--font-mono); font-weight: 800; color: #818cf8; font-size: 1.1rem;" id="player-score-live">0 pts</span>
+      </div>
+
+      <!-- Quick linear timer -->
+      <div class="timer-bar-track" style="margin-bottom: 1rem;">
+        <div class="timer-bar-fill" id="player-timer-bar"></div>
+      </div>
+
+      <!-- Question Preview on Mobile -->
+      <div style="background: rgba(18, 24, 41, 0.9); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); margin-bottom: 1rem; text-align: center;">
+        <h3 id="player-question-preview" style="font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.4;">
+          Question text...
+        </h3>
+      </div>
+
+      <!-- 4-Color Tactile Answer Pad -->
+      <div class="player-gamepad-grid" id="player-buttons-grid">
+        <button class="gamepad-btn opt-0" id="btn-opt-0" onclick="handlePlayerAnswerSubmit(0)">
+          <div class="gamepad-symbol">▲</div>
+          <div class="gamepad-text" id="btn-text-0">Option 1</div>
+        </button>
+        <button class="gamepad-btn opt-1" id="btn-opt-1" onclick="handlePlayerAnswerSubmit(1)">
+          <div class="gamepad-symbol">◆</div>
+          <div class="gamepad-text" id="btn-text-1">Option 2</div>
+        </button>
+        <button class="gamepad-btn opt-2" id="btn-opt-2" onclick="handlePlayerAnswerSubmit(2)">
+          <div class="gamepad-symbol">●</div>
+          <div class="gamepad-text" id="btn-text-2">Option 3</div>
+        </button>
+        <button class="gamepad-btn opt-3" id="btn-opt-3" onclick="handlePlayerAnswerSubmit(3)">
+          <div class="gamepad-symbol">■</div>
+          <div class="gamepad-text" id="btn-text-3">Option 4</div>
+        </button>
+      </div>
+
+      <!-- Submission Pending Banner -->
+      <div id="player-submitted-banner" style="display: none; margin-top: 1rem; text-align: center; padding: 1rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: var(--radius-md);">
+        <div style="font-weight: 700; color: #a5b4fc; font-size: 1rem;">
+          🚀 Answer Locked In! Waiting for round to conclude...
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: Round Result / Score Reveal Feedback -->
+    <section id="view-player-feedback" class="feedback-card" style="display: none;">
+      <div class="feedback-icon" id="player-feedback-icon">🎉</div>
+      <div class="feedback-status" id="player-feedback-status">CORRECT!</div>
+      <div class="feedback-pts" id="player-feedback-pts">+850 pts</div>
+      <p id="player-feedback-sub" style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1.5rem;">
+        Lightning fast answer!
+      </p>
+
+      <div style="background: rgba(10, 14, 26, 0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+        <div style="font-size: 0.85rem; color: #94a3b8; text-transform: uppercase;">Total Score</div>
+        <div id="player-total-score-display" style="font-family: var(--font-mono); font-size: 1.6rem; font-weight: 800; color: #818cf8;">
+          0 pts
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: Final Results & Placement Screen -->
+    <section id="view-player-final" class="glass-panel" style="display: none; text-align: center;">
+      <div class="trophy-glow" id="player-final-icon">🏆</div>
+      <h2 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 0.5rem;" id="player-final-rank-title">
+        Quiz Completed!
+      </h2>
+      <p style="color: #94a3b8; font-size: 1rem; margin-bottom: 1.5rem;" id="player-final-rank-sub">
+        You ranked <strong>#1</strong> out of 3 players
+      </p>
+
+      <div style="background: rgba(10, 14, 26, 0.8); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-glass); margin-bottom: 2rem;">
+        <div style="font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Final Battle Score</div>
+        <div id="player-final-score-display" style="font-family: var(--font-mono); font-size: 2.5rem; font-weight: 900; color: #fbbf24;">
+          0
+        </div>
+      </div>
+
+      <a href="player.html" class="btn btn-primary">
+        <span>🔄</span> Play Another Quiz
+      </a>
+    </section>
+  </main>
+
+  <!-- Include Socket.io client script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

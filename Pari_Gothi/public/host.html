@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host Dashboard | Quiz Battle Arena</title>
+  <meta name="description" content="Host control screen with live question display, synchronized countdown clocks, and real-time leaderboards.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <a href="index.html" class="brand-logo" id="host-header-logo">
+      <div class="brand-icon">👑</div>
+      <span>QUIZ HOST</span>
+      <span class="brand-badge" id="host-status-badge">ROOM SETUP</span>
+    </a>
+    <div class="header-status">
+      <div id="room-pin-header-display" style="display: none; font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: #a5b4fc;">
+        PIN: <span id="pin-header-text" style="color: #fff; text-decoration: underline;">----</span>
+      </div>
+      <div class="status-dot"></div>
+      <span id="socket-status-label" style="font-size: 0.85rem; color: #94a3b8;">Connected</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- VIEW 1: Initial Room Setup -->
+    <section id="view-host-setup" class="glass-panel" style="max-width: 580px; margin: 3rem auto 0; text-align: center;">
+      <div class="role-icon-box" style="color: #6366f1; background: rgba(99, 102, 241, 0.15);">
+        ⚡
+      </div>
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Create New Quiz Arena</h1>
+      <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 2rem;">
+        Initialize an authoritative multiplayer game server and generate a 4-digit PIN for players to join.
+      </p>
+
+      <form id="form-create-quiz" onsubmit="handleHostCreateRoom(event)">
+        <div class="form-group">
+          <label class="form-label" for="host-name-input">Host Name</label>
+          <input 
+            type="text" 
+            id="host-name-input" 
+            class="input-control" 
+            placeholder="e.g. Professor X" 
+            value="Game Host" 
+            maxlength="24" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="category-select">Quiz Category</label>
+          <select id="category-select" class="input-control" style="cursor: pointer;">
+            <option value="Full-Stack Tech & CS">💻 Full-Stack Web & CS Trivia</option>
+            <option value="JavaScript & Node.js">🟢 JavaScript & Node.js</option>
+            <option value="General Computing">🚀 General Tech & Computing</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-create-quiz" style="margin-top: 1rem;">
+          <span>🚀</span> Launch Room & Generate PIN
+        </button>
+      </form>
+    </section>
+
+    <!-- VIEW 2: Waiting Lobby Screen (PIN & Player Roster) -->
+    <section id="view-host-lobby" class="glass-panel" style="display: none; max-width: 850px; margin: 2rem auto 0;">
+      <div class="host-pin-hero">
+        <div class="pin-label">Join on player.html with Game PIN</div>
+        <div class="pin-huge-display" id="lobby-pin-display">----</div>
+        <div class="pin-subtext">
+          <span>📡 Share this PIN with all participants</span>
+        </div>
+      </div>
+
+      <div class="lobby-roster-header">
+        <h2 style="font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;">
+          <span>👥</span> Players in Lobby
+        </h2>
+        <span class="player-count-badge" id="lobby-player-count">0 Joined</span>
+      </div>
+
+      <div class="players-tags-container" id="lobby-players-list">
+        <!-- Live player badges dynamically injected here -->
+        <p id="empty-lobby-notice" style="color: #64748b; font-size: 0.95rem; margin: auto;">
+          Waiting for players to enter PIN and join...
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <button class="btn btn-success" id="btn-start-game" onclick="handleHostStartGame()" disabled style="flex: 2; font-size: 1.15rem; padding: 1.1rem;">
+          <span>▶️</span> Start Game (<span id="start-btn-count">0</span> Players Ready)
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: Active Question Screen -->
+    <section id="view-host-question" class="question-arena" style="display: none; max-width: 950px; margin: 1.5rem auto 0;">
+      <div class="round-top-bar">
+        <div class="round-progress-badge">
+          Question <span id="host-q-current">1</span> of <span id="host-q-total">6</span>
+        </div>
+        <div class="timer-container">
+          <div class="timer-circle" id="host-timer-circle">15</div>
+        </div>
+      </div>
+
+      <!-- Linear countdown track -->
+      <div class="timer-bar-track">
+        <div class="timer-bar-fill" id="host-timer-bar"></div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="question-card-big">
+        <h2 class="question-text-big" id="host-question-text">
+          Loading question text...
+        </h2>
+      </div>
+
+      <!-- 4-Color Answer Options Grid -->
+      <div class="answers-grid-host" id="host-answers-grid">
+        <div class="answer-card opt-0" id="host-opt-0">
+          <div class="answer-symbol">▲</div>
+          <span class="answer-text" id="host-opt-text-0">Option 1</span>
+        </div>
+        <div class="answer-card opt-1" id="host-opt-1">
+          <div class="answer-symbol">◆</div>
+          <span class="answer-text" id="host-opt-text-1">Option 2</span>
+        </div>
+        <div class="answer-card opt-2" id="host-opt-2">
+          <div class="answer-symbol">●</div>
+          <span class="answer-text" id="host-opt-text-2">Option 3</span>
+        </div>
+        <div class="answer-card opt-3" id="host-opt-3">
+          <div class="answer-symbol">■</div>
+          <span class="answer-text" id="host-opt-text-3">Option 4</span>
+        </div>
+      </div>
+
+      <!-- Explanation Reveal Card (Shown when time is up) -->
+      <div class="explanation-card" id="host-explanation-card" style="display: none;">
+        <div class="explanation-title">
+          <span>💡</span> Explanation & Answer Key:
+        </div>
+        <div class="explanation-body" id="host-explanation-text">
+          Explanation details...
+        </div>
+      </div>
+
+      <!-- Live Answers Submitted Tally -->
+      <div class="submission-status-bar" style="margin-top: 1.5rem;">
+        <div style="font-weight: 600; color: #cbd5e1; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚡</span> Live Submissions
+        </div>
+        <div style="font-family: var(--font-mono); font-weight: 700; color: #818cf8; font-size: 1.1rem;" id="host-answer-tally">
+          0 / 0 Answered
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: Live Leaderboard Screen (Between rounds) -->
+    <section id="view-host-leaderboard" class="leaderboard-container glass-panel" style="display: none; margin: 2rem auto 0;">
+      <h2 class="leaderboard-title">📊 Live Leaderboard</h2>
+      <p style="text-align: center; color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.5rem;">
+        Next question starting in a few moments...
+      </p>
+
+      <div class="leaderboard-list" id="host-leaderboard-list">
+        <!-- Leaderboard items injected here -->
+      </div>
+    </section>
+
+    <!-- VIEW 5: Final Results Podium Screen -->
+    <section id="view-host-final" class="winner-podium-section glass-panel" style="display: none; max-width: 800px; margin: 2rem auto 0;">
+      <div class="trophy-glow">🏆</div>
+      <div style="text-transform: uppercase; letter-spacing: 0.2em; color: #fbbf24; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.5rem;">
+        Champion Declared
+      </div>
+      <h1 class="winner-name-hero" id="host-winner-name">Champion</h1>
+      <div class="winner-score-hero">
+        Final Score: <span id="host-winner-score" style="color: #38bdf8;">0</span> pts
+      </div>
+
+      <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 1.25rem; color: #e2e8f0;">
+        🏅 Final Standings
+      </h3>
+      <div class="leaderboard-list" id="host-final-ranks-list" style="margin-bottom: 2rem;">
+        <!-- Final rankings -->
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="host.html" class="btn btn-primary" style="max-width: 250px;">
+          <span>🔄</span> Host Another Battle
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Include Socket.io client script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

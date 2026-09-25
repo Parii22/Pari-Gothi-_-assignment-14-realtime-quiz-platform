@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Battle Arena | Real-Time Multiplayer Live Quiz</title>
+  <meta name="description" content="Experience high-octane real-time multiplayer trivia battles powered by Node.js and Socket.io. Join with a PIN or host your own arena.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- Main Navigation Header -->
+  <header class="app-header">
+    <a href="/" class="brand-logo" id="header-brand-link">
+      <div class="brand-icon">⚡</div>
+      <span>QUIZ BATTLE</span>
+      <span class="brand-badge">LIVE</span>
+    </a>
+    <div class="header-status">
+      <div class="status-dot"></div>
+      <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600;">Server Ready</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <h1 class="hero-title">Real-Time Multiplayer Quiz Arena</h1>
+      <p class="hero-subtitle">
+        Join the live high-stakes trivia showdown. Compete with friends and teammates in real-time with speed bonuses, instant feedback, and dynamic live podiums!
+      </p>
+
+      <!-- Role Selection Grid -->
+      <div class="role-cards-grid">
+        <!-- Player Card -->
+        <div class="role-card" id="player-entry-card">
+          <div class="role-icon-box" style="color: #38bdf8; background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.3);">
+            🎮
+          </div>
+          <h2 class="role-title">Join as Player</h2>
+          <p class="role-desc">
+            Got a 4-digit PIN? Jump straight into the action with your mobile gamepad or browser tab.
+          </p>
+          <form id="quick-join-form" onsubmit="handleQuickJoin(event)">
+            <div class="form-group">
+              <label class="form-label" for="index-pin-input">4-Digit Game PIN</label>
+              <input 
+                type="text" 
+                id="index-pin-input" 
+                class="input-control input-pin" 
+                placeholder="1234" 
+                maxlength="4" 
+                pattern="[0-9]{4}" 
+                required 
+                autocomplete="off"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="index-nickname-input">Your Nickname</label>
+              <input 
+                type="text" 
+                id="index-nickname-input" 
+                class="input-control" 
+                placeholder="e.g. Neo or TriviaMaster" 
+                maxlength="16" 
+                required
+              >
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-join-arena">
+              <span>🚀</span> Join Battle Arena
+            </button>
+          </form>
+        </div>
+
+        <!-- Host Card -->
+        <div class="role-card" id="host-entry-card">
+          <div class="role-icon-box" style="color: #f43f5e; background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.3);">
+            👑
+          </div>
+          <h2 class="role-title">Host a Quiz</h2>
+          <p class="role-desc">
+            Launch a big-screen quiz arena. Control the questions, broadcast live timers, and show the podium.
+          </p>
+          <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+            <a href="host.html" class="btn btn-success" id="btn-goto-host">
+              <span>⚡</span> Launch Host Dashboard
+            </a>
+            <p style="font-size: 0.85rem; color: #64748b;">
+              Recommended for big screens, TVs, or shared projector tabs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function handleQuickJoin(e) {
+      e.preventDefault();
+      const pin = document.getElementById('index-pin-input').value.trim();
+      const name = document.getElementById('index-nickname-input').value.trim();
+      if (pin.length === 4 && name.length > 0) {
+        window.location.href = `player.html?pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(name)}`;
+      }
+    }
+  </script>
+</body>
+</html>

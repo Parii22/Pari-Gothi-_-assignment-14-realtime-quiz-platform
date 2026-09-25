@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "question": "What JavaScript engine powers the Node.js runtime?",
+    "options": ["V8 (Google)", "SpiderMonkey (Mozilla)", "JavaScriptCore (Apple)", "Chakra (Microsoft)"],
+    "correctOptionIndex": 0,
+    "explanation": "Node.js is built on Google Chrome's open-source V8 high-performance JavaScript engine."
+  },
+  {
+    "id": 2,
+    "question": "Which protocol does Socket.io upgrade to for persistent full-duplex communication?",
+    "options": ["HTTP/2 Polling", "WebSocket", "gRPC over TCP", "Server-Sent Events (SSE)"],
+    "correctOptionIndex": 1,
+    "explanation": "Socket.io establishes an initial HTTP long-polling handshake and upgrades to bidirectional WebSockets."
+  },
+  {
+    "id": 3,
+    "question": "In the Node.js Event Loop, which phase executes setTimeout and setInterval callbacks?",
+    "options": ["Poll Phase", "Check Phase", "Timers Phase", "Close Callbacks Phase"],
+    "correctOptionIndex": 2,
+    "explanation": "The Timers phase is the first phase of the Event Loop iteration and executes timer callbacks whose thresholds have elapsed."
+  },
+  {
+    "id": 4,
+    "question": "What is the time complexity of looking up a key in a well-distributed Hash Table / Map?",
+    "options": ["O(log N)", "O(1) Average", "O(N) Guaranteed", "O(N log N)"],
+    "correctOptionIndex": 1,
+    "explanation": "Hash tables provide average constant time O(1) complexity for key lookups using hash code indexing."
+  },
+  {
+    "id": 5,
+    "question": "Which HTTP status code indicates '429' in standard REST APIs?",
+    "options": ["Too Many Requests", "Service Unavailable", "Gateway Timeout", "Unprocessable Entity"],
+    "correctOptionIndex": 0,
+    "explanation": "HTTP 429 indicates that the user has sent too many requests in a given amount of time (rate limiting)."
+  },
+  {
+    "id": 6,
+    "question": "What data structure does Redis primarily use to maintain its fast sorted sets (ZSET)?",
+    "options": ["Red-Black Tree", "Skip List & Hash Table", "B+ Tree", "Fibonacci Heap"],
+    "correctOptionIndex": 1,
+    "explanation": "Redis sorted sets (ZSET) are implemented using a combination of a Skip List (for range queries) and a Hash Table."
+  }
+]
